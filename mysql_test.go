@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/RangelReale/osin"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/openshift/osin"
 	"github.com/pborman/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

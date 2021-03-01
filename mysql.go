@@ -1,4 +1,3 @@
-// Package mysql is a osin storage implementation for mysql.
 package mysql
 
 import (
@@ -8,9 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RangelReale/osin"
 	"github.com/ansel1/merry"
-	"github.com/felipeweb/gopher-utils"
+	gopher_utils "github.com/felipeweb/gopher-utils"
+	"github.com/openshift/osin"
+
 	// driver for mysql db
 	_ "github.com/go-sql-driver/mysql"
 )
