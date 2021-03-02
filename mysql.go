@@ -23,6 +23,8 @@ var schemas = []string{`CREATE TABLE IF NOT EXISTS {prefix}client (
 )`, `CREATE TABLE IF NOT EXISTS {prefix}authorize (
 	client       varchar(255) BINARY NOT NULL,
 	code         varchar(255) BINARY NOT NULL PRIMARY KEY,
+	code_challenge varchar(255) BINARY NOT NULL DEFAULT '',
+	code_challenge_method varchar(255) BINARY NOT NULL DEFAULT '',
 	expires_in   int(10) NOT NULL,
 	scope        varchar(255) NOT NULL,
 	redirect_uri varchar(255) NOT NULL,
@@ -138,9 +140,11 @@ func (s *Storage) SaveAuthorize(data *osin.AuthorizeData) (err error) {
 	}
 
 	if _, err = s.db.Exec(
-		fmt.Sprintf("INSERT INTO %sauthorize (client, code, expires_in, scope, redirect_uri, state, created_at, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", s.tablePrefix),
+		fmt.Sprintf("INSERT INTO %sauthorize (client, code, code_challenge, code_challenge_method, expires_in, scope, redirect_uri, state, created_at, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", s.tablePrefix),
 		data.Client.GetId(),
 		data.Code,
+		data.CodeChallenge,
+		data.CodeChallengeMethod,
 		data.ExpiresIn,
 		data.Scope,
 		data.RedirectUri,
@@ -163,7 +167,7 @@ func (s *Storage) LoadAuthorize(code string) (*osin.AuthorizeData, error) {
 	var data osin.AuthorizeData
 	var extra string
 	var cid string
-	if err := s.db.QueryRow(fmt.Sprintf("SELECT client, code, expires_in, scope, redirect_uri, state, created_at, extra FROM %sauthorize WHERE code=? LIMIT 1", s.tablePrefix), code).Scan(&cid, &data.Code, &data.ExpiresIn, &data.Scope, &data.RedirectUri, &data.State, &data.CreatedAt, &extra); err == sql.ErrNoRows {
+	if err := s.db.QueryRow(fmt.Sprintf("SELECT client, code, code_challenge, code_challenge_method, expires_in, scope, redirect_uri, state, created_at, extra FROM %sauthorize WHERE code=? LIMIT 1", s.tablePrefix), code).Scan(&cid, &data.Code, &data.CodeChallenge, &data.CodeChallengeMethod, &data.ExpiresIn, &data.Scope, &data.RedirectUri, &data.State, &data.CreatedAt, &extra); err == sql.ErrNoRows {
 		return nil, osin.ErrNotFound
 	} else if err != nil {
 		return nil, merry.Wrap(err)
